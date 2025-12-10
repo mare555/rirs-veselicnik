@@ -8,7 +8,62 @@ describe('Postgres integration', () => {
   beforeAll(async () => {
     client = new Client({ connectionString });
     await client.connect();
-  }, 20000);
+    
+    // Create tables for testing
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        email TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL,
+        first_name TEXT NOT NULL,
+        last_name TEXT NOT NULL,
+        role TEXT CHECK (role IN ('hr', 'manager', 'applicant')) NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+    
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS jobs (
+        id SERIAL PRIMARY KEY,
+        job_title TEXT NOT NULL,
+        job_description TEXT NOT NULL
+      );
+    `);
+    
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS job_positions (
+        id SERIAL PRIMARY KEY,
+        position_name TEXT NOT NULL
+      );
+    `);
+    
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS job_applications (
+        id SERIAL PRIMARY KEY,
+        email TEXT NOT NULL,
+        first_name TEXT NOT NULL,
+        last_name TEXT NOT NULL,
+        address TEXT,
+        phone TEXT,
+        description TEXT,
+        has_b_category_license BOOLEAN,
+        submitted_at TIMESTAMPTZ DEFAULT NOW(),
+        job_id INT NOT NULL REFERENCES jobs(id)
+      );
+    `);
+    
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS messages (
+        id SERIAL PRIMARY KEY,
+        applicant_id INT REFERENCES users(id),
+        message TEXT NOT NULL,
+        sender_role TEXT,
+        hr_id INT,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+  }, 30000);
 
   afterAll(async () => {
     await client.end();
