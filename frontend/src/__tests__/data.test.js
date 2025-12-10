@@ -1,5 +1,5 @@
-import jobs from '../../data/jobs.json'
-import applications from '../../data/applications.json'
+import jobs from '../data/jobs.json'
+import applications from '../data/applications.json'
 
 describe('Static data', () => {
   test('jobs.json has at least 1 job', () => {

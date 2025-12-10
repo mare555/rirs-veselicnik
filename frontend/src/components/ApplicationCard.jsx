@@ -1,25 +1,33 @@
-import React from "react";
-import { Paper, Typography, Button, Box } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import { Paper, Typography, Button, Box } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
-export default function ApplicationCard({ app }) {
+export default function ApplicationCard({ application }) {
   const navigate = useNavigate();
 
   return (
-    <Paper sx={{ p: 3, m:0.4 }}>
+    <Paper sx={{ p: 3, m: 0.4 }}>
       <Typography variant="h6" color="primary">
-        {app.first_name} {app.last_name}
+        {application.first_name} {application.last_name}
       </Typography>
       <Typography variant="body2" color="text.secondary">
-        {app.job_title}
+        {application.email}
       </Typography>
+
+      {/* Render the Submitted date in the format: "Submitted: DD.MM.YYYY" */}
+      {application.submitted_at && (
+        <Typography variant="body2" color="text.secondary">
+          Submitted: {new Date(application.submitted_at).toLocaleDateString('en-GB')}  {/* Format as DD.MM.YYYY */}
+        </Typography>
+      )}
+
       <Box mt={2}>
         <Button
           size="small"
           variant="outlined"
-          onClick={() => navigate(`/applications/${app.id}`)}
+          onClick={() => navigate(`/apply`)}
         >
-          View Details
+          Apply
         </Button>
       </Box>
     </Paper>
