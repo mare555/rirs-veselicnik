@@ -9,6 +9,13 @@ describe('Postgres integration', () => {
     client = new Client({ connectionString });
     await client.connect();
     
+    // Drop tables if they exist (to ensure clean state)
+    await client.query(`DROP TABLE IF EXISTS messages CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS job_applications CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS job_positions CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS jobs CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS users CASCADE;`);
+    
     // Create tables for testing
     await client.query(`
       CREATE TABLE IF NOT EXISTS users (
@@ -48,6 +55,7 @@ describe('Postgres integration', () => {
         phone TEXT,
         description TEXT,
         has_b_category_license BOOLEAN,
+        status TEXT DEFAULT 'new',
         submitted_at TIMESTAMPTZ DEFAULT NOW(),
         job_id INT NOT NULL REFERENCES jobs(id)
       );
