@@ -109,45 +109,46 @@ jobs:
       - name: Install frontend dependencies
         working-directory: frontend
         run: npm ci --prefer-offline --no-audit --silent
-
+    
       - name: Build frontend
         working-directory: frontend
         run: npm run build
-
+    
       - name: Upload frontend build artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: frontend-dist
           path: frontend/dist
-          build-and-push-docker:
-            name: Build and Push Docker Images
-            runs-on: ubuntu-latest
-            needs: [build-backend, build-frontend]
-            steps:
-              - name: Checkout repository
-                uses: actions/checkout@v4
-
-              - name: Log in to DockerHub
-                uses: docker/login-action@v2
-                with:
-                  username: ${{ secrets.DOCKER_USERNAME }}
-                  password: ${{ secrets.DOCKER_PASSWORD }}
-
-              - name: Build & push backend image (if Dockerfile exists)
-                run: |
-                  if [ -f backend/Dockerfile ]; then
-                    docker build -t ${{ secrets.DOCKER_USERNAME }}/backend:latest ./backend
-                    docker push ${{ secrets.DOCKER_USERNAME }}/backend:latest
-                  else
-                    echo "Backend Dockerfile not found; skipping backend image"
-                  fi
-
-              - name: Build & push frontend image (if Dockerfile exists)
-                run: |
-                  if [ -f frontend/Dockerfile ]; then
-                    docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend:latest ./frontend
-                    docker push ${{ secrets.DOCKER_USERNAME }}/frontend:latest
-                  else
-                    echo "Frontend Dockerfile not found; skipping frontend image"
-                  fi
+    
+  build-and-push-docker:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+    needs: [build-backend, build-frontend]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+    
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+    
+      - name: Build & push backend image (if Dockerfile exists)
+        run: |
+          if [ -f backend/Dockerfile ]; then
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/backend:latest ./backend
+            docker push ${{ secrets.DOCKER_USERNAME }}/backend:latest
+          else
+            echo "Backend Dockerfile not found; skipping backend image"
+          fi
+    
+      - name: Build & push frontend image (if Dockerfile exists)
+        run: |
+          if [ -f frontend/Dockerfile ]; then
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend:latest ./frontend
+            docker push ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+          else
+            echo "Frontend Dockerfile not found; skipping frontend image"
+          fi
