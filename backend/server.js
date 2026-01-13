@@ -12,11 +12,14 @@ const upload = multer({ dest: 'uploads/' });
 const SECRET = process.env.JWT_SECRET || 'default_secret';
 
 
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+const cors = require('cors');
+app.use(cors()); // For production, you can later restrict this to your frontend URL
+
+// app.use(cors({
+//   origin: '*',
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization']
+// }));
 
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
@@ -189,7 +192,9 @@ async function insertDefaultApplications() {
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
 //database
 waitForDb();
