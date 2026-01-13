@@ -20,12 +20,16 @@ jobs:
           node-version: 18
 
       - name: Cache backend dependencies
+        id: cache-backend
         uses: actions/cache@v4
         with:
           path: backend/node_modules
           key: ${{ runner.os }}-backend-${{ hashFiles('backend/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-backend-
+
+      - name: Debug backend cache
+        run: echo "Cache hit for backend: ${{ steps.cache-backend.outputs.cache-hit }}"
 
       - name: Install backend dependencies
         run: |
@@ -58,12 +62,16 @@ jobs:
           node-version: 18
 
       - name: Cache frontend dependencies
+        id: cache-frontend
         uses: actions/cache@v4
         with:
           path: frontend/node_modules
           key: ${{ runner.os }}-frontend-${{ hashFiles('frontend/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-frontend-
+
+      - name: Debug frontend cache
+        run: echo "Cache hit for frontend: ${{ steps.cache-frontend.outputs.cache-hit }}"
 
       - name: Install frontend dependencies
         working-directory: frontend
