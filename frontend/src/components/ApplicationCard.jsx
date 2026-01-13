@@ -4,10 +4,12 @@ import { useNavigate } from 'react-router-dom';
 
 export default function ApplicationCard({ application }) {
   const navigate = useNavigate();
+  console.log('Rendering ApplicationCard for:', application);
 
   return (
     <Paper sx={{ p: 3, m: 0.4 }}>
       <Typography variant="h6" color="primary">
+
         {application.first_name} {application.last_name}
       </Typography>
       <Typography variant="body2" color="text.secondary">

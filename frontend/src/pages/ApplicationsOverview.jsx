@@ -8,7 +8,7 @@ export default function ApplicationsOverview() {
     const [applications, setApplications] = useState([]);
 
     useEffect(() => {
-        API.getApplications().then(setApplications);
+        API.getApplications().then(setApplications).then(() => {console.log('Fetched applications:', applications);});
     }, []);
 
     return (
