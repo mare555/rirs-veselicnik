@@ -9,8 +9,8 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./backend/db-init:/docker-entrypoint-initdb.d:ro
-    ports:
-      - "5432:5432"
+    #ports:
+    #  - "5432:5432"
     healthcheck:
       # ensure pg_isready checks the actual database name (not defaulting to the username)
       test: ["CMD-SHELL", "pg_isready -U rirs -d rirs"]
@@ -42,6 +42,7 @@ services:
       - /usr/src/app/node_modules
     environment:
       - CHOKIDAR_USEPOLLING=true
+      - VITE_API_URL=http://backend:3000 # Use service names for internal talk
     depends_on:
       - backend
 
