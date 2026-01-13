@@ -1,0 +1,74 @@
+name: Build and Cache
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+
+jobs:
+  build-backend:
+    name: Build backend (if applicable)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Cache backend dependencies
+        uses: actions/cache@v4
+        with:
+          path: backend/node_modules
+          key: ${{ runner.os }}-backend-${{ hashFiles('backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-backend-
+
+      - name: Install backend dependencies
+        run: |
+          if [ -f backend/package-lock.json ] || [ -f backend/package.json ]; then
+            cd backend
+            npm ci --prefer-offline --no-audit --silent
+          else
+            echo "No backend package.json found, skipping install"
+          fi
+
+      - name: Build backend (optional)
+        run: |
+          if [ -f backend/package.json ] && grep -q "\"build\"" backend/package.json; then
+            cd backend
+            npm run build
+          else
+            echo "No backend build script detected; skipping build"
+          fi
+
+  build-frontend:
+    name: Build frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Cache frontend dependencies
+        uses: actions/cache@v4
+        with:
+          path: frontend/node_modules
+          key: ${{ runner.os }}-frontend-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-frontend-
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci --prefer-offline --no-audit --silent
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
