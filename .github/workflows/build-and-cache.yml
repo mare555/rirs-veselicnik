@@ -33,7 +33,8 @@ jobs:
           echo "Cache hit for backend: ${{ steps.cache-backend.outputs.cache-hit }}"
 
       - name: Debug backend cache key
-        run: echo "Cache key for backend: ${{ runner.os }}-backend-${{ hashFiles('backend/package-lock.json') }}"
+        run: |
+          echo "Cache key for backend: ${{ runner.os }}-backend-${{ hashFiles('backend/package-lock.json') }}"
 
       - name: Verify backend lock file
         run: |
@@ -94,7 +95,8 @@ jobs:
           echo "Cache hit for frontend: ${{ steps.cache-frontend.outputs.cache-hit }}"
 
       - name: Debug frontend cache key
-        run: echo "Cache key for frontend: ${{ runner.os }}-frontend-${{ hashFiles('frontend/package-lock.json') }}"
+        run: |
+          echo "Cache key for frontend: ${{ runner.os }}-frontend-${{ hashFiles('frontend/package-lock.json') }}"
 
       - name: Verify frontend lock file
         run: |
