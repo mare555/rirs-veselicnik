@@ -1,150 +1,49 @@
 services:
-  # MongoDB for Food Order Service
-  food-mongo:
-    image: mongo:latest
-    container_name: food-order-mongo
-    ports:
-      - "27017:27017"
+  db:
+    image: postgres:15
+    restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: secret
+      POSTGRES_USER: rirs
+      POSTGRES_PASSWORD: secretpassword
+      POSTGRES_DB: rirs
     volumes:
-      - food_mongo_data:/data/db
-    networks:
-      - app-network
+      - db_data:/var/lib/postgresql/data
+      - ./backend/db-init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5432:5432"
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      # ensure pg_isready checks the actual database name (not defaulting to the username)
+      test: ["CMD-SHELL", "pg_isready -U rirs -d rirs"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 10s
 
-  # Food Order Service (Soritev_narocanja_hrane)
-  food-service:
+  backend:
     build:
-      context: ./Soritev_narocanja_hrane
-      dockerfile: DockerFile
-    container_name: food-service
+      context: ./backend
     ports:
-      - "0.0.0.0:8001:8000"
+      - "3000:3000"
+    env_file:
+      - ./backend/.env
     environment:
-      MONGO_USERNAME: admin
-      MONGO_PASSWORD: secret
-      MONGO_HOST: food-mongo
-      MONGO_PORT: 27017
-      MONGO_DB: food_order_db
+      - DATABASE_URL=postgresql://rirs:secretpassword@db:5432/rirs?sslmode=disable
+    volumes:
+      - ./backend/uploads:/usr/src/app/uploads
     depends_on:
-      food-mongo:
-        condition: service_healthy
-    networks:
-      - app-network
-    volumes:
-      - ./Soritev_narocanja_hrane:/app
-    restart: unless-stopped
+      - db
 
-
-  izgubljeni_predmeti_web:
+  frontend:
     build:
-      context: ./izgubljeni_predmeti/webserver
-      dockerfile: Dockerfile.development
-    restart: unless-stopped
-    image: izgubljeni_predmeti_web:latest #image za caching
+      context: ./frontend
+    ports:
+      - "5173:5173"
     volumes:
-      - ./izgubljeni_predmeti/webserver:/usr/src/app
+      - ./frontend:/usr/src/app
       - /usr/src/app/node_modules
     environment:
-      DB_HOST: izgubljeni_predmeti_mongo
-      DB_USER: izgubljeni_predmeti_database_user
-      DB_PASSWORD: my_secure_password
-      DB_NAME: izgubljeni_predmeti_database
-      PORT: 9000
-    ports:
-      - "9000:9000"
-    networks:
-      - app-network
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
-      - izgubljeni_predmeti_mongo
-
-  izgubljeni_predmeti_mongo:
-    image: mongo:6
-    container_name: izgubljeni-predmeti-mongo
-    restart: always
-    ports:
-      - "27027:27017"
-    volumes:
-      - izgubljeni_predmeti_mongo_data:/data/db
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: izgubljeni_predmeti_database_user
-      MONGO_INITDB_ROOT_PASSWORD: my_secure_password
-      MONGO_INITDB_DATABASE: izgubljeni_predmeti_database
-    networks:
-      - app-network
-
-
-       
-       # MongoDB for Music Service
-  music-mongo:
-    image: mongo:latest
-    container_name: music-requests-mongo
-    ports:
-      - "27018:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: secret
-    volumes:
-      - music_mongo_data:/data/db
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
- # Music Service (Storitev_glasbenih_zelj)
-  music-service:
-    build:
-      context: ./Storitev_glasbenih_zelj
-      dockerfile: Dockerfile
-    container_name: music-service
-    ports:
-      - "0.0.0.0:8000:8000"
-    environment:
-      MONGO_USERNAME: admin
-      MONGO_PASSWORD: secret
-      MONGO_HOST: music-mongo
-      MONGO_PORT: 27017
-      MONGO_DB: music_requests_db
-      FOOD_SERVICE_URL: http://food-service:8000
-    depends_on:
-      music-mongo:
-        condition: service_healthy
-      food-service:
-        condition: service_started
-    networks:
-      - app-network
-    volumes:
-      - ./Storitev_glasbenih_zelj:/app
-    restart: unless-stopped
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "python",
-          "-c",
-          "import urllib.request; urllib.request.urlopen('http://localhost:8000/docs').read()",
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      - backend
 
 volumes:
-  food_mongo_data:
-  redis_data:
-  izgubljeni_predmeti_mongo_data:
-
-networks:
-  app-network:
-    driver: bridge
+  db_data:

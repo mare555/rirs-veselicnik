@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "firstName": "John",
+    "lastName": "Doe",
+    "position": "Software Engineer",
+    "description": "Experienced full-stack developer with 5 years in React and Node.js."
+  },
+  {
+    "id": 2,
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "position": "HR Assistant",
+    "description": "Strong organizational skills and HR background."
+  },
+  {
+    "id": 3,
+    "firstName": "Michael",
+    "lastName": "Johnson",
+    "position": "Product Manager",
+    "description": "Skilled in agile project management, cross-functional coordination, and product strategy."
+  },
+  {
+    "id": 4,
+    "firstName": "Emily",
+    "lastName": "Davis",
+    "position": "UI/UX Designer",
+    "description": "Creative designer with experience in Figma, Adobe XD, and user-centered design."
+  },
+  {
+    "id": 5,
+    "firstName": "Robert",
+    "lastName": "Brown",
+    "position": "Data Analyst",
+    "description": "Expert in SQL, Python, and data visualization with 4 years of analytics experience."
+  },
+  {
+    "id": 6,
+    "firstName": "Sophia",
+    "lastName": "Wilson",
+    "position": "Marketing Specialist",
+    "description": "Specializes in digital marketing, social media campaigns, and brand growth strategies."
+  },
+  {
+    "id": 7,
+    "firstName": "David",
+    "lastName": "Miller",
+    "position": "DevOps Engineer",
+    "description": "Experienced in AWS, CI/CD pipelines, and server automation."
+  },
+  {
+    "id": 8,
+    "firstName": "Olivia",
+    "lastName": "Taylor",
+    "position": "Customer Support Representative",
+    "description": "Excellent communication skills and experience managing client inquiries and tickets."
+  },
+  {
+    "id": 9,
+    "firstName": "James",
+    "lastName": "Anderson",
+    "position": "Business Analyst",
+    "description": "Strong analytical skills, business process improvement, and reporting experience."
+  },
+  {
+    "id": 10,
+    "firstName": "Ava",
+    "lastName": "Thomas",
+    "position": "QA Engineer",
+    "description": "Specializes in automated and manual testing, with a focus on high-quality software delivery."
+  }
+]
