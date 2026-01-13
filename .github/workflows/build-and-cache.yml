@@ -29,7 +29,8 @@ jobs:
             ${{ runner.os }}-backend-
 
       - name: Debug backend cache
-        run: echo "Cache hit for backend: ${{ steps.cache-backend.outputs.cache-hit }}"
+        run: |
+          echo "Cache hit for backend: ${{ steps.cache-backend.outputs.cache-hit }}"
 
       - name: Install backend dependencies
         run: |
