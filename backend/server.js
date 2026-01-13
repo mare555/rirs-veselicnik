@@ -12,7 +12,6 @@ const upload = multer({ dest: 'uploads/' });
 const SECRET = process.env.JWT_SECRET || 'default_secret';
 
 
-const cors = require('cors');
 app.use(cors()); // For production, you can later restrict this to your frontend URL
 
 // app.use(cors({
