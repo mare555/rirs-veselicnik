@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 export default function JobCard({ job }) {
   const navigate = useNavigate();
 
+  console.log('Rendering JobCard for:', job);
+
   return (
     <Paper sx={{ p: 3, m: 0.4 }}>
       <Typography variant="h6" color="primary">

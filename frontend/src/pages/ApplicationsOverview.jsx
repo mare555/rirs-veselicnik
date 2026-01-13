@@ -16,7 +16,7 @@ export default function ApplicationsOverview() {
             <Grid container spacing={3} justifyContent="center">
                 {applications.map((app) => (
                     <Grid item xs={12} sm={6} md={4} key={app.id}>
-                        <ApplicationCard app={app} />
+                        <ApplicationCard application={app} />
                     </Grid>
                 ))}
             </Grid>
