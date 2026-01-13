@@ -32,6 +32,17 @@ jobs:
         run: |
           echo "Cache hit for backend: ${{ steps.cache-backend.outputs.cache-hit }}"
 
+      - name: Debug backend cache key
+        run: echo "Cache key for backend: ${{ runner.os }}-backend-${{ hashFiles('backend/package-lock.json') }}"
+
+      - name: Verify backend lock file
+        run: |
+          if [ -f backend/package-lock.json ]; then
+            echo "Backend package-lock.json exists."
+          else
+            echo "Backend package-lock.json is missing!"
+          fi
+
       - name: Install backend dependencies
         run: |
           if [ -f backend/package-lock.json ] || [ -f backend/package.json ]; then
@@ -81,6 +92,17 @@ jobs:
       - name: Debug frontend cache
         run: |
           echo "Cache hit for frontend: ${{ steps.cache-frontend.outputs.cache-hit }}"
+
+      - name: Debug frontend cache key
+        run: echo "Cache key for frontend: ${{ runner.os }}-frontend-${{ hashFiles('frontend/package-lock.json') }}"
+
+      - name: Verify frontend lock file
+        run: |
+          if [ -f frontend/package-lock.json ]; then
+            echo "Frontend package-lock.json exists."
+          else
+            echo "Frontend package-lock.json is missing!"
+          fi
 
       - name: Install frontend dependencies
         working-directory: frontend
