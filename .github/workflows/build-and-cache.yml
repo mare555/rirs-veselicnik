@@ -49,6 +49,13 @@ jobs:
             echo "No backend build script detected; skipping build"
           fi
 
+      - name: Upload backend build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-build
+          path: backend/build
+
   build-frontend:
     name: Build frontend
     runs-on: ubuntu-latest
@@ -80,3 +87,10 @@ jobs:
       - name: Build frontend
         working-directory: frontend
         run: npm run build
+
+      - name: Upload frontend build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
