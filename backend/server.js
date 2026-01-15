@@ -12,11 +12,13 @@ const upload = multer({ dest: 'uploads/' });
 const SECRET = process.env.JWT_SECRET || 'default_secret';
 
 
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors()); // For production, you can later restrict this to your frontend URL
+
+// app.use(cors({
+//   origin: '*',
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization']
+// }));
 
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
