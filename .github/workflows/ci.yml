@@ -31,8 +31,9 @@ jobs:
         run: npm ci
       - name: Wait for Postgres
         run: |
-          for i in {1..30}; do
-            nc -z 127.0.0.1 5432 && echo "pg up" && break || sleep 1;
+          until docker exec ${{ job.services.postgres.id }} pg_isready -U rirs; do
+            echo "Waiting for Postgres..."
+            sleep 2
           done
       - name: Run backend tests
         working-directory: backend
