@@ -1,0 +1,25 @@
+name: Deploy to Environment
+
+on:
+  pull_request:
+    types: [closed]
+    branches: ["main", "production"]
+
+jobs:
+  deploy-to-dev:
+    name: Deploy to Development
+    if: github.event.pull_request.merged == true && github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    environment: Development
+    steps:
+      - name: Notify
+        run: echo "Deploying to Development with dev-tagged images"
+
+  deploy-to-prod:
+    name: Deploy to Production
+    if: github.event.pull_request.merged == true && github.base_ref == 'production'
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - name: Notify
+        run: echo "Deploying to Production with prod-tagged images"

@@ -1,0 +1,164 @@
+name: Build and Cache
+
+on:
+  push:
+  pull_request:
+    branches: ["main", "master"]
+
+jobs:
+  build-backend:
+    name: Build backend (if applicable)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Cache backend dependencies
+        id: cache-backend
+        uses: actions/cache@v4
+        with:
+          path: backend/node_modules
+          key: ${{ runner.os }}-backend-${{ hashFiles('backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-backend-
+
+      - name: Debug backend cache
+        run: |
+          echo "Cache hit for backend: ${{ steps.cache-backend.outputs.cache-hit }}"
+
+      - name: Debug backend cache key
+        run: |
+          echo "Cache key for backend: ${{ runner.os }}-backend-${{ hashFiles('backend/package-lock.json') }}"
+
+      - name: Verify backend lock file
+        run: |
+          if [ -f backend/package-lock.json ]; then
+            echo "Backend package-lock.json exists."
+          else
+            echo "Backend package-lock.json is missing!"
+          fi
+
+      - name: Install backend dependencies
+        run: |
+          if [ -f backend/package-lock.json ] || [ -f backend/package.json ]; then
+            cd backend
+            npm ci --prefer-offline --no-audit --silent
+          else
+            echo "No backend package.json found, skipping install"
+          fi
+
+      - name: Build backend (optional)
+        run: |
+          if [ -f backend/package.json ] && grep -q "\"build\"" backend/package.json; then
+            cd backend
+            npm run build
+          else
+            echo "No backend build script detected; skipping build"
+          fi
+
+      - name: Upload backend build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-build
+          path: backend/build
+
+  build-frontend:
+    name: Build frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Cache frontend dependencies
+        id: cache-frontend
+        uses: actions/cache@v4
+        with:
+          path: frontend/node_modules
+          key: ${{ runner.os }}-frontend-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-frontend-
+
+      - name: Debug frontend cache
+        run: |
+          echo "Cache hit for frontend: ${{ steps.cache-frontend.outputs.cache-hit }}"
+
+      - name: Debug frontend cache key
+        run: |
+          echo "Cache key for frontend: ${{ runner.os }}-frontend-${{ hashFiles('frontend/package-lock.json') }}"
+
+      - name: Verify frontend lock file
+        run: |
+          if [ -f frontend/package-lock.json ]; then
+            echo "Frontend package-lock.json exists."
+          else
+            echo "Frontend package-lock.json is missing!"
+          fi
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci --prefer-offline --no-audit --silent
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Upload frontend build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
+  build-and-push-docker:
+    name: Build and Push Docker Images
+    if: github.event.pull_request.merged == true && (github.base_ref == 'main' || github.base_ref == 'production')
+    runs-on: ubuntu-latest
+    needs: [build-backend, build-frontend]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build & push backend image
+        run: |
+          if [ -f backend/Dockerfile ]; then
+            if [ "${{ github.base_ref }}" == "main" ]; then
+              docker build -t ${{ secrets.DOCKER_USERNAME }}/backend:dev ./backend
+              docker push ${{ secrets.DOCKER_USERNAME }}/backend:dev
+            elif [ "${{ github.base_ref }}" == "production" ]; then
+              docker build -t ${{ secrets.DOCKER_USERNAME }}/backend:prod ./backend
+              docker push ${{ secrets.DOCKER_USERNAME }}/backend:prod
+            fi
+          else
+            echo "Backend Dockerfile not found; skipping backend image"
+          fi
+
+      - name: Build & push frontend image
+        run: |
+          if [ -f frontend/Dockerfile ]; then
+            if [ "${{ github.base_ref }}" == "main" ]; then
+              docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend:dev ./frontend
+              docker push ${{ secrets.DOCKER_USERNAME }}/frontend:dev
+            elif [ "${{ github.base_ref }}" == "production" ]; then
+              docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend:prod ./frontend
+              docker push ${{ secrets.DOCKER_USERNAME }}/frontend:prod
+            fi
+          else
+            echo "Frontend Dockerfile not found; skipping frontend image"
+          fi

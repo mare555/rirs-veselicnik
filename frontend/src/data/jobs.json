@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "title": "Junior AI/ML Engineer",
+    "position": "Machine Learning Engineer",
+    "description": "Work on real-world AI/ML applications using Azure Cloud services, develop APIs, and integrate with various systems and tools. Ideal for someone starting a career in AI & ML."
+  },
+  {
+    "id": 2,
+    "title": "Software Developer",
+    "position": "Software Engineer / Developer",
+    "description": "Work on remote desktop software and global IT products. Use modern tools for efficient work including live chat, ticketing systems, and Atlassian. Offers flexible hours and mentorship."
+  },
+  {
+    "id": 3,
+    "title": "Business Analyst",
+    "position": "Business Analyst",
+    "description": "Analyze business requirements and act as a bridge between product, development, and stakeholders. Opportunity to work in the gaming or tech industry."
+  },
+  {
+    "id": 4,
+    "title": "Frontend Product Manager",
+    "position": "Product Manager / Frontend",
+    "description": "Drive product strategy and frontend development. Collaborate closely with design and engineering teams to create high-quality user experiences."
+  },
+  {
+    "id": 5,
+    "title": "Accountant",
+    "position": "Finance / Accountant",
+    "description": "Perform accounting tasks in a stable and growing environment. Permanent position with flexible working hours and opportunities for career advancement."
+  }
+]
