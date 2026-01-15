@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  backend-tests:
+  backend-tests-and-analysis:
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -17,53 +17,71 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U rirs -d rirs"
-          --health-interval 10s --health-timeout 5s --health-retries 5
+          --health-cmd "pg_isready -U rirs"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for SonarCloud
+
       - name: Use Node 18
         uses: actions/setup-node@v4
         with:
           node-version: '18'
+
       - name: Install backend dependencies
         working-directory: backend
         run: npm ci
+
       - name: Wait for Postgres
         run: |
-          for i in {1..30}; do
-            nc -z localhost 5432 && echo "pg up" && break || sleep 1;
+          until docker exec ${{ job.services.postgres.id }} pg_isready -U rirs; do
+            echo "Waiting for Postgres..."
+            sleep 2
           done
-      - name: Run backend tests
+
+      - name: Run backend tests with coverage
         working-directory: backend
         env:
           DATABASE_URL: postgresql://rirs:secretpassword@localhost:5432/rirs
-        run: npm test
-      - name: Upload backend coverage
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-coverage
-          path: backend/coverage
+        # Ensure your jest config or script generates coverage (lcov format)
+        run: npm test -- --coverage 
 
-  frontend-tests:
+      - name: SonarCloud Scan (Backend)
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: backend
+
+  frontend-tests-and-analysis:
     runs-on: ubuntu-latest
-    needs: backend-tests
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Use Node 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
       - name: Install frontend deps
         working-directory: frontend
         run: npm ci
-      - name: Run frontend tests (vitest)
+
+      - name: Run frontend tests
         working-directory: frontend
-        run: npm run test:ci
-      - name: Upload frontend coverage
-        if: always()
-        uses: actions/upload-artifact@v4
+        run: npm run test:ci # -- --coverage
+
+      - name: SonarCloud Scan (Frontend)
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          name: frontend-coverage
-          path: frontend/coverage
+          projectBaseDir: frontend
