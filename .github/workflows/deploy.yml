@@ -3,10 +3,13 @@ name: Deploy to GitHub Pages
 on:
   push:
   pull_request:
+    branches: ["main", "master"]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - name: Deploy
