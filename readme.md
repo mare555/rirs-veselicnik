@@ -9,3 +9,7 @@ hosted on: https://dashboard.render.com/
 
 
 local: http://localhost:5173/
+
+
+# Naloga 5:
+Github page: https://mare555.github.io/rirs-veselicnik/
