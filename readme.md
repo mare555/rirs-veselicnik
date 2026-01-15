@@ -13,3 +13,5 @@ local: http://localhost:5173/
 
 # Naloga 5:
 Github page: https://mare555.github.io/rirs-veselicnik/
+settings: https://github.com/mare555/rirs-veselicnik/settings/pages
+
