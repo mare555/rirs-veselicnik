@@ -32,7 +32,7 @@ export default function LoginPage() {
 
 
   return (
-    <Layout title="Login to proceed" setWidth="30%"> 
+    <Layout title="Login to proceed, legend" setWidth="30%"> 
       <Box
         display="flex"
         flexDirection="column"
