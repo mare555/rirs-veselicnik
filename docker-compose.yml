@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: rirs
+      POSTGRES_PASSWORD: secretpassword
+      POSTGRES_DB: rirs
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./backend/db-init:/docker-entrypoint-initdb.d:ro
+    #ports:
+    #  - "5432:5432"
+    healthcheck:
+      # ensure pg_isready checks the actual database name (not defaulting to the username)
+      test: ["CMD-SHELL", "pg_isready -U rirs -d rirs"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env
+    environment:
+      - DATABASE_URL=postgresql://rirs:secretpassword@db:5432/rirs?sslmode=disable
+    volumes:
+      - ./backend/uploads:/usr/src/app/uploads
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - VITE_API_URL=http://backend:3000 # Use service names for internal talk
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
