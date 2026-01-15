@@ -1,5 +1,0 @@
-GET http://localhost:3000/job/list
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsInJvbGUiOiJociIsImlhdCI6MTc2ODI4NzgyNiwiZXhwIjoxNzY4Mjk1MDI2fQ.pHR9zdYZ2FK7bUSyaTFj6KSVaq2QHWUBBbODnkKW1Fc
-Content-Type: application/json
-
-{}
