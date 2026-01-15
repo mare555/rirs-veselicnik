@@ -95,3 +95,72 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   
+
+  # SonarCloud analysis for frontend
+  sonarcloud-frontend:
+    name: SonarCloud Analysis (Frontend)
+    runs-on: ubuntu-latest
+    needs: frontend-tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Required for SonarCloud analysis
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run frontend tests and generate coverage
+        working-directory: frontend
+        run: npm run test:ci
+
+      - name: SonarCloud Scan (Frontend)
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: frontend  # Path to the frontend directory
+
+
+
+
+  # SonarCloud analysis for backend
+  sonarcloud-backend:
+    name: SonarCloud Analysis (Backend)
+    runs-on: ubuntu-latest
+    needs: backend-tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Run backend tests and generate coverage
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://rirs:secretpassword@localhost:5432/rirs
+        run: npm test
+
+      - name: SonarCloud Scan (Backend)
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: backend  # Path to the backend directory
