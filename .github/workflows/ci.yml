@@ -154,7 +154,7 @@ jobs:
       - name: Run backend tests and generate coverage
         working-directory: backend
         env:
-          DATABASE_URL: postgresql://rirs:secretpassword@localhost:5432/rirs
+          DATABASE_URL: postgresql://rirs:secretpassword@127.0.0.1:5432/rirs
         run: npm test
 
       - name: SonarCloud Scan (Backend)
